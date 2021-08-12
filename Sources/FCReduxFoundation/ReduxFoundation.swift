@@ -1,6 +1,5 @@
 //
 //  ReduxFoundation.swift
-//  SimpleSteps
 //
 //  Created by Farley Caesar on 2020-09-07.
 //
