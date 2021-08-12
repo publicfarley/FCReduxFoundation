@@ -24,7 +24,7 @@ public typealias Middleware<State, Action> = (State, Action, @escaping Dispatche
 ///  - The store runs the reducer when actions arive to produce a new state for the store to hold on to and publish.
 ///  - The store runs all middleware when actions arrive as well.
 @MainActor public final class Store<State,Action>: ObservableObject {
-    @Published private(set) var state: State
+    @Published public private(set) var state: State
     
     private let reducer: Reducer<State, Action>
     private let middleware: [Middleware<State, Action>]
