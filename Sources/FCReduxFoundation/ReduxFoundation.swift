@@ -50,3 +50,33 @@ public typealias Middleware<State: Equatable, Action> = (State, Action, @escapin
         }
     }    
 }
+
+/// Combine takes two reducers and returns a single reducer function. This function first calls the first reducer
+/// If it effected the state, then it just returns that state, otherwise it returns the result of the 2nd reducer.
+/// This way only one reducer can affect the state. So each Action can only be acted on by a single reducer.
+func combine<State: Equatable, Action>(_ reducer1: @escaping Reducer<State, Action>, 
+                            with reducer2: @escaping Reducer<State, Action>) -> Reducer<State, Action> {
+    { (state: inout State, action: Action) -> Void in
+        let oldState = state
+        reducer1(&state,action)
+        let newState = state
+        
+        let isStateUnchanged = oldState == newState
+        guard isStateUnchanged else {
+            // first reducer took care of modifying the state so make an early exit
+            return
+        }
+        
+        reducer2(&state,action)
+    }
+}
+
+public func reduce<State: Equatable, Action>(reducers: [Reducer<State, Action>]) -> Reducer<State: Equatable, Action> {
+    let noOpReducer: Reducer<State: Equatable, Action> = { _, _ in }
+    
+    let singleReducer = reducers.reduce(noOpReducer) { currentReducer, nextReducer in
+        return combine(currentReducer, with: nextReducer)
+    }
+    
+    return singleReducer
+}
