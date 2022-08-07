@@ -36,13 +36,13 @@ public final class Store<State>: ObservableObject {
     /// An  `Action` is a statement of intent to be interpreted by a reducer. Based on the current state, the action results in a new state.
     public struct Action {
         /// SpecificMiddleware: A middleware function tied to a specific action that takes a state and a dispatcher function.
-        typealias SpecificMiddleware = (State, @escaping Dispatcher) -> ProcessDirective
+        public typealias SpecificMiddleware = (State, @escaping Dispatcher) -> ProcessDirective
 
         let name: String
         let reduce: (inout State) -> Void
         let middleware: SpecificMiddleware?
         
-        init(name: String,
+        public init(name: String,
              reduce: @escaping (inout State) -> Void,
              middleware: SpecificMiddleware? = nil
         ) {
