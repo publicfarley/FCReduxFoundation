@@ -38,9 +38,9 @@ public final class Store<State>: ObservableObject {
         /// SpecificMiddleware: A middleware function tied to a specific action that takes a state and a dispatcher function.
         public typealias SpecificMiddleware = (State, @escaping Dispatcher) -> ProcessDirective
 
-        let name: String
-        let reduce: (inout State) -> Void
-        let middleware: SpecificMiddleware?
+        public let name: String
+        public let reduce: (inout State) -> Void
+        public let middleware: SpecificMiddleware?
         
         public init(name: String,
              reduce: @escaping (inout State) -> Void,
