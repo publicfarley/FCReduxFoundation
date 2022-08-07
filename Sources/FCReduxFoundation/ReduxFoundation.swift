@@ -5,7 +5,7 @@
 //
 import Foundation
 
-typealias Action<State> = Store<State>.Action
+public typealias Action<State> = Store<State>.Action
 
 /// A `Store` is place that holds the current state, the store reducer, and store middleware. It provides a facility where external actors can dispatch actions to the store.
 ///  - The store runs the reducer when actions arive to produce a new state for the store to hold on to and publish.
@@ -15,14 +15,14 @@ typealias Action<State> = Store<State>.Action
 
 // Note: Usage of MainActor as per advice below: https://www.hackingwithswift.com/quick-start/concurrency/how-to-use-mainactor-to-run-code-on-the-main-queue
 @MainActor
-final class Store<State>: ObservableObject {
-    enum ProcessDirective {
+public final class Store<State>: ObservableObject {
+    public enum ProcessDirective {
         case `continue`
         case terminate
     }
 
     /// A function given to middleware by the store, to give it a location to dispatch actions
-    typealias Dispatcher = @MainActor (Action) -> Void
+    public typealias Dispatcher = @MainActor (Action) -> Void
     
     /// Middleware is where inpure functions of state and action are processed.
     /// That is, middleware functions can produce side effects based on the given action and state.
@@ -31,10 +31,10 @@ final class Store<State>: ObservableObject {
     /// A directive to terminate means the action will not proceed to the reducer.
     ///
     /// GeneralMiddleware: A middleware function that takes a state, an action, and a dispatcher function.
-    typealias GeneralMiddleware = (State, Action, @escaping Dispatcher) -> ProcessDirective
+    public typealias GeneralMiddleware = (State, Action, @escaping Dispatcher) -> ProcessDirective
 
     /// An  `Action` is a statement of intent to be interpreted by a reducer. Based on the current state, the action results in a new state.
-    struct Action {
+    public struct Action {
         /// SpecificMiddleware: A middleware function tied to a specific action that takes a state and a dispatcher function.
         typealias SpecificMiddleware = (State, @escaping Dispatcher) -> ProcessDirective
 
@@ -52,15 +52,15 @@ final class Store<State>: ObservableObject {
         }
     }
     
-    @Published private (set) var state: State
+    @Published public private (set) var state: State
     var middleware: [GeneralMiddleware]
     
-    init(state: State, middleware: [GeneralMiddleware] = []) {
+    public init(state: State, middleware: [GeneralMiddleware] = []) {
         self.state = state
         self.middleware = middleware
     }
     
-    func dispatch(_ action: Action) {
+    public func dispatch(_ action: Action) {
         
         // General Middleware
         for middlewareInstance in middleware {
