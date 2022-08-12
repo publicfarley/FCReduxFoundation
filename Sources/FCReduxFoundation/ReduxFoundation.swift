@@ -73,28 +73,16 @@ public final class Store<State>: ObservableObject {
     }
 }
 
-public struct SimpleAction<State>: Action {
-    public typealias State = State
-    
-    public let name: String
-    public let reduce: (inout State) -> Void
-    
-    public init(name: String, reduce: @escaping (inout State) -> Void) {
-        self.name = name
-        self.reduce = reduce
-    }
-}
-
-public struct ActionWithMiddleware<State>: Action {
+public struct StandardAction<State>: Action {
     public typealias State = State
     
     public let name: String
     public let reduce: (inout State) -> Void
     public let middleware: Middleware
     
-    public init(name: String, reduce: @escaping (inout State) -> Void, middleware: @escaping Middleware) {
+    public init(name: String, reduce: @escaping (inout State) -> Void, middleware: Middleware? = nil) {
         self.name = name
         self.reduce = reduce
-        self.middleware = middleware
+        self.middleware = middleware ?? { _ in .continue }
     }
 }
