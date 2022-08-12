@@ -84,3 +84,17 @@ public struct SimpleAction<State>: Action {
         self.reduce = reduce
     }
 }
+
+public struct ActionWithMiddleware<State>: Action {
+    public typealias State = State
+    
+    public let name: String
+    public let reduce: (inout State) -> Void
+    public let middleware: Middleware
+    
+    public init(name: String, reduce: @escaping (inout State) -> Void, middleware: @escaping Middleware) {
+        self.name = name
+        self.reduce = reduce
+        self.middleware = middleware
+    }
+}
