@@ -13,11 +13,12 @@ public enum ProcessDirective {
 /// An  `Action` is a statement of intent to be interpreted by a reducer. Based on the current state, the action results in a new state.
 public protocol Action {
     associatedtype State
+    associatedtype Environment
     
     typealias Reducer = (inout State) -> Void
 
     /// Middleware: A fpotentially side effecting function tied to a specific action that takes a Store.
-    typealias Middleware = (Store<State>) -> ProcessDirective
+    typealias Middleware = (Store<Environment, State>) -> ProcessDirective
     
     var name: String { get }
     var reduce: Reducer { get }
@@ -38,7 +39,7 @@ public extension Action {
 /// - Parameters:
 ///     - State: The set of values that represent the overall value of a an application at a point in time.
 @MainActor
-public final class Store<State>: ObservableObject {
+public final class Store<Environment, State>: ObservableObject {
     /// Middleware is where inpure functions of state and action are processed.
     /// That is, middleware functions can produce side effects based on the given action and state.
     /// They can also dispatch a resulting action using the given store's dispatcher.
@@ -46,7 +47,7 @@ public final class Store<State>: ObservableObject {
     /// A directive to terminate means the action will not proceed to the reducer.
     ///
     /// GeneralMiddleware: A middleware function that takes an action, and the store. Returns a `ProcessDirective`
-    public typealias GeneralMiddleware = @MainActor (any Action, Store<State>) -> ProcessDirective
+    public typealias GeneralMiddleware = @MainActor (any Action, Store<Environment, State>) -> ProcessDirective
 
 
     @Published public private (set) var state: State
@@ -57,7 +58,7 @@ public final class Store<State>: ObservableObject {
         self.middleware = middleware
     }
     
-    public func dispatch<T: Action>(_ action: T) where T.State == State {
+    public func dispatch<T: Action>(_ action: T) where T.State == State, T.Environment == Environment {
 
         // General Middleware
         for middlewareInstance in middleware {
@@ -73,14 +74,14 @@ public final class Store<State>: ObservableObject {
     }
 }
 
-public struct StandardAction<State>: Action {
+public struct StandardAction<Environment, State>: Action {
     public typealias State = State
     
     public let name: String
-    public let reduce: (inout State) -> Void
+    public let reduce: Reducer
     public let middleware: Middleware
     
-    public init(name: String, reduce: @escaping (inout State) -> Void, middleware: Middleware? = nil) {
+    public init(name: String, reduce: @escaping Reducer, middleware: Middleware? = nil) {
         self.name = name
         self.reduce = reduce
         self.middleware = middleware ?? { _ in .continue }
