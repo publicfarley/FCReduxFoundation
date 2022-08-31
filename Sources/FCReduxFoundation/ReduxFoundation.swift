@@ -49,13 +49,15 @@ public final class Store<Environment, State>: ObservableObject {
     /// GeneralMiddleware: A middleware function that takes an action, and the store. Returns a `ProcessDirective`
     public typealias GeneralMiddleware = @MainActor (any Action, Store<Environment, State>) -> ProcessDirective
 
-
     @Published public private (set) var state: State
-    public var middleware: [GeneralMiddleware]
     
-    public init(state: State, middleware: [GeneralMiddleware] = []) {
+    public let middleware: [GeneralMiddleware]
+    public let environment: Environment
+    
+    public init(environment: Environment, state: State, middleware: [GeneralMiddleware] = []) {
         self.state = state
         self.middleware = middleware
+        self.environment = environment
     }
     
     public func dispatch<T: Action>(_ action: T) where T.State == State, T.Environment == Environment {
