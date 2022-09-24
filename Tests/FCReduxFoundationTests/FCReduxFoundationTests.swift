@@ -1,4 +1,4 @@
-import OSLog
+import os
 import XCTest
 @testable import FCReduxFoundation
 
@@ -7,7 +7,10 @@ final class ActionTests: XCTestCase {
     
     @MainActor override func setUp() {
         super.setUp()
-        store = Store(environment: Environment(), state: Counter(count: 0), logger: { print($0) })
+        store = Store(
+            environment: Environment(),
+            state: Counter(count: 0),
+            logger: { Logger().info("\n\n\($0)") })
         
     }
     
