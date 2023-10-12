@@ -4,16 +4,21 @@
 //  Created by Farley Caesar on 2020-09-07.
 //
 import Foundation
+import Observation
 
 public enum ProcessDirective {
     case `continue`
     case terminate
 }
 
+public protocol EmptyStateRepresentable {
+    init()
+}
+
 /// An  `Action` is a statement of intent to be interpreted by a reducer.
 /// Based on the current state, processing the action results in a new state.
 public protocol MiddlewareProvider {
-    associatedtype State
+    associatedtype State: Observable & EmptyStateRepresentable
     associatedtype Environment
 
     /// Middleware: A fpotentially side effecting function tied to a specific action that takes a Store.
@@ -58,8 +63,9 @@ public extension ParameterizedAction {
 ///  - The store then runs the action's reducer to produce a new state, derived from the old state, for the store to hold on to and publish.
 /// - Parameters:
 ///     - State: The set of values that represent the overall value of a an application at a point in time.
+@Observable
 @MainActor
-public final class Store<Environment, State>: ObservableObject {
+public final class Store<Environment, State: Observable & EmptyStateRepresentable> {
     /// Middleware is where inpure functions of state and action are processed.
     /// That is, middleware functions can produce side effects based on the given action and state.
     /// They can also dispatch a resulting action using the given store's dispatcher.
@@ -71,24 +77,24 @@ public final class Store<Environment, State>: ObservableObject {
     
     public typealias Logger = (String) -> Void
     
-    @Published public private (set) var state: State
-    
-    public let middleware: [GeneralMiddleware]
-    public let environment: Environment
-    public let logger: Logger
-    
+    public private (set) var state: State = State()
+
+    @ObservationIgnored public let middleware: [GeneralMiddleware]
+    @ObservationIgnored public let environment: Environment
+    @ObservationIgnored public let logger: Logger
+
     public init(
         environment: Environment,
         state: State,
         middleware: [GeneralMiddleware] = [],
         logger: @escaping Logger = { _ in }
     ) {
-        self.state = state
         self.middleware = middleware
         self.environment = environment
         self.logger = logger
+        self.state = state
     }
-    
+
     public func dispatch<T: Action>(_ action: T) where T.State == State, T.Environment == Environment {
         
         reduce(action: action) { state in
@@ -113,7 +119,7 @@ public final class Store<Environment, State>: ObservableObject {
         action: any Identifiable,
         using reduce: (inout State) -> Void
     ) {
-        logger("****\nState *before* action: '\(action)':\n\(state)\n****\n")
+        logger("****\nState *before* action: '\(action)':\n\(String(describing: state))\n****\n")
         
         // Run General Middleware
         for middlewareInstance in middleware {
@@ -125,11 +131,11 @@ public final class Store<Environment, State>: ObservableObject {
         // Run the reduction
         reduce(&state)
         
-        logger("****\nState *after* action: '\(action)':\n\(state)\n****\n")
+        logger("****\nState *after* action: '\(action)':\n\(String(describing: state))\n****\n")
     }
 }
 
-public struct StandardAction<Environment, State>: Action {
+public struct StandardAction<Environment, State: Observable & EmptyStateRepresentable>: Action {
     public typealias State = State
     
     public let id: String
@@ -149,7 +155,7 @@ extension StandardAction: CustomStringConvertible {
     }
 }
 
-public struct StandardParameterizedAction<Environment, State, Parameters>: ParameterizedAction {
+public struct StandardParameterizedAction<Environment, State: Observable & EmptyStateRepresentable, Parameters>: ParameterizedAction {
     public typealias State = State
     public typealias Parameters = Parameters
     

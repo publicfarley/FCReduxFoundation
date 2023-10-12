@@ -1,3 +1,4 @@
+import Observation
 import os
 import XCTest
 @testable import FCReduxFoundation
@@ -53,6 +54,13 @@ final class ActionTests: XCTestCase {
 
 struct Environment {}
 
-struct Counter {
-    var count: Int
+@Observable
+final class Counter: EmptyStateRepresentable {
+    var count: Int = 0
+
+    init() {}
+    
+    init(count: Int) {
+        self.count = count
+    }
 }
