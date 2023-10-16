@@ -6,7 +6,7 @@ import XCTest
 final class ActionTests: XCTestCase {
     var store: Store<Environment, Counter>!
     
-    @MainActor override func setUp() {
+    override func setUp() {
         super.setUp()
         store = Store(
             environment: Environment(),
@@ -15,7 +15,7 @@ final class ActionTests: XCTestCase {
         
     }
     
-    @MainActor override func tearDown() {
+    override func tearDown() {
         store = nil
         super.tearDown()
     }

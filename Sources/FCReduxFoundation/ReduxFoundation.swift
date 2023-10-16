@@ -64,7 +64,6 @@ public extension ParameterizedAction {
 /// - Parameters:
 ///     - State: The set of values that represent the overall value of a an application at a point in time.
 @Observable
-@MainActor
 public final class Store<Environment, State: EmptyStateRepresentable> {
     /// Middleware is where inpure functions of state and action are processed.
     /// That is, middleware functions can produce side effects based on the given action and state.
@@ -95,6 +94,7 @@ public final class Store<Environment, State: EmptyStateRepresentable> {
         self.state = state
     }
 
+    @MainActor
     public func dispatch<T: Action>(_ action: T) where T.State == State, T.Environment == Environment {
         
         reduce(action: action) { state in
@@ -105,6 +105,7 @@ public final class Store<Environment, State: EmptyStateRepresentable> {
         }
     }
 
+    @MainActor
     public func dispatch<T: ParameterizedAction>(_ action: T) where T.State == State, T.Environment == Environment {
         
         reduce(action: action) { state in
@@ -115,6 +116,7 @@ public final class Store<Environment, State: EmptyStateRepresentable> {
         }
     }
     
+    @MainActor 
     private func reduce(
         action: any Identifiable,
         using reduce: (inout State) -> Void
