@@ -54,8 +54,7 @@ final class ActionTests: XCTestCase {
 
 struct Environment {}
 
-@Observable
-final class Counter: EmptyStateRepresentable {
+struct Counter: EmptyStateRepresentable {
     var count: Int = 0
 
     init() {}
