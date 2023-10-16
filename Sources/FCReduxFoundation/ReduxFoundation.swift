@@ -18,7 +18,7 @@ public protocol EmptyStateRepresentable {
 /// An  `Action` is a statement of intent to be interpreted by a reducer.
 /// Based on the current state, processing the action results in a new state.
 public protocol MiddlewareProvider {
-    associatedtype State: Observable & EmptyStateRepresentable
+    associatedtype State: EmptyStateRepresentable
     associatedtype Environment
 
     /// Middleware: A fpotentially side effecting function tied to a specific action that takes a Store.
@@ -65,7 +65,7 @@ public extension ParameterizedAction {
 ///     - State: The set of values that represent the overall value of a an application at a point in time.
 @Observable
 @MainActor
-public final class Store<Environment, State: Observable & EmptyStateRepresentable> {
+public final class Store<Environment, State: EmptyStateRepresentable> {
     /// Middleware is where inpure functions of state and action are processed.
     /// That is, middleware functions can produce side effects based on the given action and state.
     /// They can also dispatch a resulting action using the given store's dispatcher.
@@ -135,7 +135,7 @@ public final class Store<Environment, State: Observable & EmptyStateRepresentabl
     }
 }
 
-public struct StandardAction<Environment, State: Observable & EmptyStateRepresentable>: Action {
+public struct StandardAction<Environment, State: EmptyStateRepresentable>: Action {
     public typealias State = State
     
     public let id: String
@@ -155,7 +155,7 @@ extension StandardAction: CustomStringConvertible {
     }
 }
 
-public struct StandardParameterizedAction<Environment, State: Observable & EmptyStateRepresentable, Parameters>: ParameterizedAction {
+public struct StandardParameterizedAction<Environment, State: EmptyStateRepresentable, Parameters>: ParameterizedAction {
     public typealias State = State
     public typealias Parameters = Parameters
     
